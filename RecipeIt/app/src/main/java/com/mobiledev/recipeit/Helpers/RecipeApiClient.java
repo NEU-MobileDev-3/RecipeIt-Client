@@ -1,6 +1,7 @@
 package com.mobiledev.recipeit.Helpers;
 
-import com.mobiledev.recipeit.Models.RecipeRequest;
+import com.mobiledev.recipeit.Models.RecipeByChatRequest;
+import com.mobiledev.recipeit.Models.RecipeByImageRequest;
 import com.mobiledev.recipeit.Models.RecipeResponse;
 
 import java.io.BufferedReader;
@@ -17,11 +18,11 @@ public class RecipeApiClient {
         this.apiUrl = apiUrl;
     }
 
-    public RecipeResponse uploadRecipe(RecipeRequest req) throws IOException {
+    private <TReq> RecipeResponse createRecipeImpl(TReq req, String endpoint) throws IOException {
         var gson = new com.google.gson.Gson();
         var json = gson.toJson(req);
 
-        var url = new URL(this.apiUrl);
+        var url = new URL(String.format("%s%s", this.apiUrl, endpoint));
         var conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -47,5 +48,13 @@ public class RecipeApiClient {
         var responseText = responseBuilder.toString();
 
         return gson.fromJson(responseText, RecipeResponse.class);
+    }
+
+    public RecipeResponse createRecipe(RecipeByImageRequest req) throws IOException {
+        return createRecipeImpl(req, "/recipe/create/image");
+    }
+
+    public RecipeResponse createRecipe(RecipeByChatRequest req) throws IOException {
+        return createRecipeImpl(req, "/recipe/create/text");
     }
 }

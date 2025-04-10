@@ -18,18 +18,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
-import com.mobiledev.recipeit.Models.RecipeRequest;
-import com.mobiledev.recipeit.Models.RecipeResponse;
-
-import java.io.BufferedReader;
+import com.mobiledev.recipeit.Models.RecipeByImageRequest;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-
 public class MainActivity extends AppCompatActivity {
-    private static final String API_ENDPOINT = "http://10.0.2.2:4000/api/recipe/create";
+    private static final String API_ENDPOINT = "http://10.0.2.2:4000/api";
 
     private TextView resultTextView;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
@@ -83,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
                 var imageBytes = outputStream.toByteArray();
                 var base64Str = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
 
-                var req = new RecipeRequest(base64Str);
-                var res = client.uploadRecipe(req);
+                var req = new RecipeByImageRequest(base64Str);
+                var res = client.createRecipe(req);
 
                 var generatedRecipes = res.getGenerated();
                 runOnUiThread(() -> resultTextView.setText(generatedRecipes));
