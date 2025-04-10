@@ -45,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        resultTextView = findViewById(R.id.resultTextView);
-
         // Register image picker launcher
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),

@@ -1,30 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFF9C4"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onSelectPhoto"
-        android:text="Select Photo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+    <!-- Scrollable area for chat bubbles -->
+    <ScrollView
+        android:id="@+id/chatScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/inputContainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <TextView
-        android:id="@+id/resultTextView"
-        android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/chatLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Dummy chat bubble 1 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_bubble_left"
+                android:padding="12dp"
+                android:text="Hey there! What recipe are you cooking today?"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Dummy chat bubble 2 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_bubble_right"
+                android:padding="12dp"
+                android:text="I have eggs, spinach, cheese, salt. "
+                android:textColor="@android:color/white"
+                android:layout_gravity="end"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Input area with icons -->
+    <LinearLayout
+        android:id="@+id/inputContainer"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="#FBC02D"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Plus Icon -->
+        <ImageView
+            android:id="@+id/plusIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/add"
+            android:contentDescription="Add"
+            android:onClick="onSelectPhoto"
+            android:layout_gravity="center_vertical"
+            android:padding="6dp" />
+
+        <!-- Input Field -->
+        <EditText
+            android:id="@+id/inputEditText"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:hint="Type..."
+            android:background="@android:color/white"
+            android:padding="10dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:layout_marginHorizontal="8dp"
+            android:layout_gravity="center_vertical"
+            android:drawablePadding="8dp" />
+
+        <!-- Mic Icon -->
+        <ImageView
+            android:id="@+id/micIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/mic"
+            android:contentDescription="Mic"
+            android:layout_gravity="center_vertical"
+            android:padding="6dp" />
+
+        <!-- Send Icon -->
+        <ImageView
+            android:id="@+id/sendIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/message"
+            android:contentDescription="Send"
+            android:layout_gravity="center_vertical"
+            android:padding="6dp" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
