@@ -39,14 +39,15 @@
 
             <!-- Dummy chat bubble 2 -->
             <TextView
+                android:id="@+id/responseView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_bubble_right"
                 android:padding="12dp"
                 android:text="I have eggs, spinach, cheese, salt. "
-                android:textColor="@android:color/white"
-                android:layout_gravity="end"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </ScrollView>
@@ -90,23 +91,16 @@
             android:drawablePadding="8dp" />
 
         <!-- Mic Icon -->
-        <ImageView
-            android:id="@+id/micIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/mic"
-            android:contentDescription="Mic"
-            android:layout_gravity="center_vertical"
-            android:padding="6dp" />
 
         <!-- Send Icon -->
         <ImageView
             android:id="@+id/sendIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/message"
-            android:contentDescription="Send"
             android:layout_gravity="center_vertical"
-            android:padding="6dp" />
+            android:contentDescription="Send"
+            android:onClick="submitByChat"
+            android:padding="6dp"
+            android:src="@drawable/message" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

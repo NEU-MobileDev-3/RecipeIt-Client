@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -18,12 +19,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
+import com.mobiledev.recipeit.Models.RecipeByChatRequest;
 import com.mobiledev.recipeit.Models.RecipeByImageRequest;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+
 public class MainActivity extends AppCompatActivity {
     private static final String API_ENDPOINT = "http://10.0.2.2:4000/api";
 
     private TextView resultTextView;
+    private EditText inputEditText;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     @Override
@@ -37,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        resultTextView = findViewById(R.id.responseView);
+        inputEditText = findViewById(R.id.inputEditText);
+
         // Register image picker launcher
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -44,7 +52,11 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Uri imageUri = result.getData().getData();
                         if (imageUri != null) {
-                            handleImage(imageUri);
+                            try {
+                                handleImage(imageUri);
+                            } catch (FileNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }
@@ -56,34 +68,52 @@ public class MainActivity extends AppCompatActivity {
         imagePickerLauncher.launch(intent);
     }
 
-    private void handleImage(Uri imageUri) {
+    public void submitByChat(View v) {
+        var content = inputEditText.getText().toString();
+        inputEditText.setText("");
+
+        var req = new RecipeByChatRequest(content);
+        performRequest(req);
+    }
+
+    private <TReq> void performRequest(TReq req) {
         var client = new RecipeApiClient(API_ENDPOINT);
 
         new Thread(() -> {
             try {
-                var inputStream = getContentResolver().openInputStream(imageUri);
-                var outputStream = new ByteArrayOutputStream();
-                var buffer = new byte[1024];
-                int bytesRead;
-
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
-
-                inputStream.close();
-
-                var imageBytes = outputStream.toByteArray();
-                var base64Str = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
-
-                var req = new RecipeByImageRequest(base64Str);
                 var res = client.createRecipe(req);
-
                 var generatedRecipes = res.getGenerated();
+
                 runOnUiThread(() -> resultTextView.setText(generatedRecipes));
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> resultTextView.setText("Error: " + e.getMessage()));
             }
         }).start();
+    }
+
+    private void handleImage(Uri imageUri) throws FileNotFoundException {
+        try {
+            var inputStream = getContentResolver().openInputStream(imageUri);
+            var outputStream = new ByteArrayOutputStream();
+            var buffer = new byte[1024];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            inputStream.close();
+
+            var imageBytes = outputStream.toByteArray();
+            var base64Str = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+            var req = new RecipeByImageRequest(base64Str);
+
+            performRequest(req);
+        } catch (Exception e) {
+            e.printStackTrace();
+            runOnUiThread(() -> resultTextView.setText("Error: " + e.getMessage()));
+        }
+
     }
 }
