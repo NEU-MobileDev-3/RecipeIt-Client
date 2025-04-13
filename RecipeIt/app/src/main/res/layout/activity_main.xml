@@ -47,92 +47,180 @@
         android:layout_height="0dp"
         android:fillViewport="true"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/titleBar"
         app:layout_constraintBottom_toTopOf="@+id/inputContainer"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/titleBar">
 
-        <LinearLayout
-            android:id="@+id/chatLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatHistoryView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Dummy chat bubble 1 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_bubble_left"
-                android:padding="12dp"
-                android:text="Hey there! What recipe are you cooking today?"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Dummy chat bubble 2 -->
-            <TextView
-                android:id="@+id/responseView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_bubble_right"
-                android:padding="12dp"
-                android:text="I have eggs, spinach, cheese, salt. "
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
+            android:layout_height="wrap_content" />
     </ScrollView>
 
-    <!-- Input area with icons -->
+    <!-- Input Container -->
     <LinearLayout
         android:id="@+id/inputContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
+        android:background="#FFF176"
         android:padding="8dp"
-        android:background="#FBC02D"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottomNav"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Plus Icon -->
-        <ImageView
-            android:id="@+id/plusIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/add"
-            android:contentDescription="Add"
-            android:onClick="onSelectPhoto"
-            android:layout_gravity="center_vertical"
-            android:padding="6dp" />
+        <!-- Chat Input Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical">
 
-        <!-- Input Field -->
-        <EditText
-            android:id="@+id/inputEditText"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:hint="Type..."
-            android:background="@android:color/white"
-            android:padding="10dp"
-            android:textColor="@android:color/black"
-            android:textColorHint="@android:color/darker_gray"
-            android:layout_marginHorizontal="8dp"
-            android:layout_gravity="center_vertical"
-            android:drawablePadding="8dp" />
+            <ImageView
+                android:id="@+id/plusIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/add"
+                android:contentDescription="Add"
+                android:onClick="onSelectPhoto"
+                android:padding="8dp"
+                android:background="@drawable/rounded_button"
+                android:layout_marginEnd="8dp"/>
 
-        <!-- Mic Icon -->
+            <EditText
+                android:id="@+id/inputEditText"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Type..."
+                android:background="@drawable/rounded_edittext"
+                android:paddingHorizontal="12dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray"/>
 
-        <!-- Send Icon -->
-        <ImageView
-            android:id="@+id/sendIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="Send"
-            android:onClick="submitByChat"
-            android:padding="6dp"
-            android:src="@drawable/message" />
+            <ImageView
+                android:id="@+id/sendIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/message"
+                android:contentDescription="Send"
+                android:onClick="submitByChat"
+                android:padding="8dp"
+                android:background="@drawable/rounded_button"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Food Preferences -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="8dp">
+
+            <ToggleButton
+                android:id="@+id/veganToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOn="🥬 Vegan"
+                android:textOff="🥬 Vegan"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:background="@drawable/rounded_toggle"
+                android:textColor="@android:color/black"
+                android:paddingHorizontal="16dp"/>
+
+            <ToggleButton
+                android:id="@+id/glutenFreeToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:textOn="🌾 Gluten Free"
+                android:textOff="🌾 Gluten Free"
+                android:background="@drawable/rounded_toggle"
+                android:textColor="@android:color/black"
+                android:paddingHorizontal="16dp"
+                android:layout_marginStart="8dp"/>
+
+            <ToggleButton
+                android:id="@+id/dairyFreeToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:textOn="🥛 Dairy Free"
+                android:textOff="🥛 Dairy Free"
+                android:background="@drawable/rounded_toggle"
+                android:textColor="@android:color/black"
+                android:paddingHorizontal="16dp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Sliders -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calories 🔥"
+                    android:textColor="@android:color/black"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp">
+                    <SeekBar
+                        android:id="@+id/calorieSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:max="1000"
+                        android:progress="300" />
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recipes 🔢"
+                    android:textFontWeight="6"
+                    android:textColor="@android:color/black"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp">
+                    <SeekBar
+                        android:id="@+id/recipeCountSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:max="5"
+                        android:progress="2" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
