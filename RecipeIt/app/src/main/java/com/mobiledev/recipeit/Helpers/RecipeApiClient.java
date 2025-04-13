@@ -50,11 +50,14 @@ public class RecipeApiClient {
         return gson.fromJson(responseText, RecipeResponse.class);
     }
 
-    public RecipeResponse createRecipe(RecipeByImageRequest req) throws IOException {
-        return createRecipeImpl(req, "/recipe/create/image");
-    }
+    public <TReq> RecipeResponse createRecipe(TReq req) throws IOException {
 
-    public RecipeResponse createRecipe(RecipeByChatRequest req) throws IOException {
-        return createRecipeImpl(req, "/recipe/create/text");
+        if (req instanceof RecipeByImageRequest)
+            return createRecipeImpl(req, "/recipe/create/image");
+
+        if (req instanceof RecipeByChatRequest)
+            return createRecipeImpl(req, "/recipe/create/text");
+
+        throw new NullPointerException();
     }
 }

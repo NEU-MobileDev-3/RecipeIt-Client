@@ -14,9 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.SeekBar;
+import android.widget.ToggleButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -24,16 +28,29 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
+import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
+import com.mobiledev.recipeit.Helpers.DialogHelper;
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
 import com.mobiledev.recipeit.Helpers.UserSessionManager;
+import com.mobiledev.recipeit.Models.RecipeByChatRequest;
+import com.mobiledev.recipeit.Helpers.RecipeHelper;
+import com.mobiledev.recipeit.Models.ChatHistory;
 import com.mobiledev.recipeit.Models.RecipeByChatRequest;
 import com.mobiledev.recipeit.Models.RecipeByImageRequest;
 import com.mobiledev.recipeit.databinding.ActivityMainBinding;
 
 import java.io.ByteArrayOutputStream;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_ENDPOINT = "http://10.0.2.2:4000/api";
@@ -43,7 +60,20 @@ public class MainActivity extends AppCompatActivity {
     private EditText inputEditText;
     private ImageView sendIcon;
     private UserSessionManager sessionManager;
+    private final List<ChatHistory> chatHistories = new ArrayList<>(
+            List.of(
+                    ChatHistory.Server("Hello! I am your recipe assistant. How can I help you today?"),
+                    ChatHistory.Server("Please upload an image of the ingredients or type your request.")
+            )
+    );
+
+    private ChatHistoryAdapter chatHistoryAdapter;
+    private RecyclerView chatHistoryView;
+    private EditText inputEditText;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+
+    private ToggleButton veganToggle, glutenFreeToggle, dairyFreeToggle;
+    private SeekBar calorieSeekBar, recipeCountSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +119,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        chatHistoryView = findViewById(R.id.chatHistoryView);
+        inputEditText = findViewById(R.id.inputEditText);
+
+        chatHistoryAdapter = new ChatHistoryAdapter(this, chatHistories);
+        chatHistoryView.setAdapter(chatHistoryAdapter);
+        chatHistoryView.setLayoutManager(new LinearLayoutManager(this));
+
         // Register image picker launcher
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -96,11 +133,43 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Uri imageUri = result.getData().getData();
                         if (imageUri != null) {
-                            handleImage(imageUri);
+                            try {
+                                handleImage(imageUri);
+                            } catch (FileNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }
         );
+
+        //Food Preferences Options
+        veganToggle = findViewById(R.id.veganToggle);
+        glutenFreeToggle = findViewById(R.id.glutenFreeToggle);
+        dairyFreeToggle = findViewById(R.id.dairyFreeToggle);
+
+        calorieSeekBar = findViewById(R.id.calorieSeekBar);
+        recipeCountSeekBar = findViewById(R.id.recipeCountSeekBar);
+
+
+        // Set up Bottom navigation menu
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                Toast.makeText(this, "Home selected", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.nav_favorites) {
+                Toast.makeText(this, "Favorites selected", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.nav_profile) {
+                Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private void sendMessage() {
@@ -193,7 +262,45 @@ public class MainActivity extends AppCompatActivity {
         imagePickerLauncher.launch(intent);
     }
 
-    private void handleImage(Uri imageUri) {
+    public void submitByChat(View v) {
+        var content = inputEditText.getText().toString();
+        inputEditText.setText("");
+
+        if (content.isEmpty()) {
+            return;
+        }
+
+        // Add user message to chat history
+        chatHistories.add(ChatHistory.User(content));
+        chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
+
+        // Collect selected types
+        List<String> types = new ArrayList<>();
+        if (veganToggle.isChecked()) types.add("vegan");
+        if (glutenFreeToggle.isChecked()) types.add("gluten free");
+        if (dairyFreeToggle.isChecked()) types.add("dairy free");
+
+        double maxCalories = calorieSeekBar.getProgress();
+        int numberOfRecipes = recipeCountSeekBar.getProgress();
+        String recipeRequest = RecipeHelper.getRecipeByChat(types, maxCalories, numberOfRecipes, content);
+
+        var req = new RecipeByChatRequest(recipeRequest);
+        performRequest(req);
+    }
+
+    private void saveHistory() {
+        // Save chat history to a database or file
+        // This is a placeholder for the actual implementation
+        var trimmedHistories = chatHistories.stream().skip(2);
+        var json = new Gson().toJson(trimmedHistories);
+    }
+
+    private void loadHistory() {
+        // Load chat history from a database or file
+        // This is a placeholder for the actual implementation
+    }
+
+    private <TReq> void performRequest(TReq req) {
         var client = new RecipeApiClient(API_ENDPOINT);
 
         // Add a loading message
@@ -201,10 +308,32 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                var inputStream = getContentResolver().openInputStream(imageUri);
-                var outputStream = new ByteArrayOutputStream();
-                var buffer = new byte[1024];
-                int bytesRead;
+                var res = client.createRecipe(req);
+                var generatedRecipes = res.getGenerated();
+
+                runOnUiThread(() -> {
+                    chatHistories.add(ChatHistory.Server(generatedRecipes));
+                    chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
+                });
+
+                saveHistory();
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    // Show error dialog
+                    var errorMessage = "Error: " + e.getMessage();
+                    DialogHelper.showErrorDialog(this, "Failed to request recipe", errorMessage);
+                });
+            }
+        }).start();
+    }
+
+    private void handleImage(Uri imageUri) throws FileNotFoundException {
+        try {
+            var inputStream = getContentResolver().openInputStream(imageUri);
+            var outputStream = new ByteArrayOutputStream();
+            var buffer = new byte[1024];
+            int bytesRead;
 
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
