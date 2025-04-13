@@ -3,4 +3,9 @@
     <string name="name_of_app">RecipeIt!</string>
     <string name="logo_description">Phone held infront of the refrigerator capturing an image of ingredients\n</string>
     <string name="app_slogan">Snap, Cook, Enjoy!</string>
+    <string name="recipeit">RecipeIt</string>
+    <string name="about">About</string>
+    <string name="home">Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="profile">Profile</string>
 </resources>

@@ -10,6 +10,8 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.SeekBar;
 import android.widget.ToggleButton;
 
@@ -21,6 +23,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
 import com.mobiledev.recipeit.Helpers.DialogHelper;
@@ -95,6 +98,25 @@ public class MainActivity extends AppCompatActivity {
         calorieSeekBar = findViewById(R.id.calorieSeekBar);
         recipeCountSeekBar = findViewById(R.id.recipeCountSeekBar);
 
+
+        // Set up Bottom navigation menu
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                Toast.makeText(this, "Home selected", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.nav_favorites) {
+                Toast.makeText(this, "Favorites selected", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.nav_profile) {
+                Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            return false;
+        });
     }
 
     public void onSelectPhoto(View v){
@@ -191,5 +213,17 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+    }
+
+    public void onAboutClick(View view) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("About RecipeIt")
+                .setMessage("📸 Snap, 🍳 Cook, 😋 Enjoy – Smart Recipes in Seconds!\n\n" +
+                        "RecipeIt helps you turn ingredients into creative meals using AI.\n\n" +
+                        "➤ Take or upload a photo of your ingredients.\n" +
+                        "➤ Get recipe ideas instantly using GenAI.\n" +
+                        "➤ Chat with your assistant for more meal suggestions.")
+                .setPositiveButton("OK", null)
+                .show();
     }
 }

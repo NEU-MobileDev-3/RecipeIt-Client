@@ -9,6 +9,37 @@
     android:background="#FFF9C4"
     tools:context=".MainActivity">
 
+    <LinearLayout
+        android:id="@+id/titleBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#FBC02D"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/recipeit"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black" />
+
+        <ImageView
+            android:id="@+id/aboutButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_info"
+            android:contentDescription="@string/about"
+            android:onClick="onAboutClick" />
+    </LinearLayout>
+
+
     <!-- Scrollable area for chat bubbles -->
     <ScrollView
         android:id="@+id/chatScrollView"
@@ -19,7 +50,7 @@
         app:layout_constraintBottom_toTopOf="@+id/inputContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/titleBar">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chatHistoryView"
@@ -36,6 +67,7 @@
         android:background="#FFF176"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNav"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -190,4 +222,18 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#FBC02D"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
