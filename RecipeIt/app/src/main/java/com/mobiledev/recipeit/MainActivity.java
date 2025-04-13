@@ -10,24 +10,39 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
+import com.mobiledev.recipeit.Helpers.DialogHelper;
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
+import com.mobiledev.recipeit.Models.ChatHistory;
 import com.mobiledev.recipeit.Models.RecipeByChatRequest;
 import com.mobiledev.recipeit.Models.RecipeByImageRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_ENDPOINT = "http://10.0.2.2:4000/api";
 
-    private TextView resultTextView;
+    private final List<ChatHistory> chatHistories = new ArrayList<>(
+            List.of(
+                    ChatHistory.Server("Hello! I am your recipe assistant. How can I help you today?"),
+                    ChatHistory.Server("Please upload an image of the ingredients or type your request.")
+            )
+    );
+
+    private ChatHistoryAdapter chatHistoryAdapter;
+    private RecyclerView chatHistoryView;
     private EditText inputEditText;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
@@ -42,8 +57,12 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        resultTextView = findViewById(R.id.responseView);
+        chatHistoryView = findViewById(R.id.chatHistoryView);
         inputEditText = findViewById(R.id.inputEditText);
+
+        chatHistoryAdapter = new ChatHistoryAdapter(this, chatHistories);
+        chatHistoryView.setAdapter(chatHistoryAdapter);
+        chatHistoryView.setLayoutManager(new LinearLayoutManager(this));
 
         // Register image picker launcher
         imagePickerLauncher = registerForActivityResult(
@@ -72,8 +91,28 @@ public class MainActivity extends AppCompatActivity {
         var content = inputEditText.getText().toString();
         inputEditText.setText("");
 
+        if (content.isEmpty()) {
+            return;
+        }
+
+        // Add user message to chat history
+        chatHistories.add(ChatHistory.User(content));
+        chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
+
         var req = new RecipeByChatRequest(content);
         performRequest(req);
+    }
+
+    private void saveHistory() {
+        // Save chat history to a database or file
+        // This is a placeholder for the actual implementation
+        var trimmedHistories = chatHistories.stream().skip(2);
+        var json = new Gson().toJson(trimmedHistories);
+    }
+
+    private void loadHistory() {
+        // Load chat history from a database or file
+        // This is a placeholder for the actual implementation
     }
 
     private <TReq> void performRequest(TReq req) {
@@ -84,10 +123,19 @@ public class MainActivity extends AppCompatActivity {
                 var res = client.createRecipe(req);
                 var generatedRecipes = res.getGenerated();
 
-                runOnUiThread(() -> resultTextView.setText(generatedRecipes));
+                runOnUiThread(() -> {
+                    chatHistories.add(ChatHistory.Server(generatedRecipes));
+                    chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
+                });
+
+                saveHistory();
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> resultTextView.setText("Error: " + e.getMessage()));
+                runOnUiThread(() -> {
+                    // Show error dialog
+                    var errorMessage = "Error: " + e.getMessage();
+                    DialogHelper.showErrorDialog(this, "Failed to request recipe", errorMessage);
+                });
             }
         }).start();
     }
@@ -112,7 +160,10 @@ public class MainActivity extends AppCompatActivity {
             performRequest(req);
         } catch (Exception e) {
             e.printStackTrace();
-            runOnUiThread(() -> resultTextView.setText("Error: " + e.getMessage()));
+            runOnUiThread(() -> {
+                var errorMessage = "Error: " + e.getMessage();
+                DialogHelper.showErrorDialog(this, "Failed to request recipe", errorMessage);
+            });
         }
 
     }

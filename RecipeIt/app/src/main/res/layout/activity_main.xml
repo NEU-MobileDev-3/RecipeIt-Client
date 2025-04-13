@@ -16,40 +16,15 @@
         android:layout_height="0dp"
         android:fillViewport="true"
         android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/inputContainer"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:id="@+id/chatLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatHistoryView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Dummy chat bubble 1 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_bubble_left"
-                android:padding="12dp"
-                android:text="Hey there! What recipe are you cooking today?"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Dummy chat bubble 2 -->
-            <TextView
-                android:id="@+id/responseView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_bubble_right"
-                android:padding="12dp"
-                android:text="I have eggs, spinach, cheese, salt. "
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
+            android:layout_height="wrap_content" />
     </ScrollView>
 
     <!-- Input area with icons -->
