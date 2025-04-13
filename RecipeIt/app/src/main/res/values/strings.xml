@@ -5,4 +5,7 @@
     <string name="app_slogan">Snap, Cook, Enjoy!</string>
     <string name="recipeit">RecipeIt</string>
     <string name="about">About</string>
+    <string name="home">Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="profile">Profile</string>
 </resources>
