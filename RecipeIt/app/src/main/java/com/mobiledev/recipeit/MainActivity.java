@@ -10,6 +10,8 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.ToggleButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ import com.google.gson.Gson;
 import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
 import com.mobiledev.recipeit.Helpers.DialogHelper;
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
+import com.mobiledev.recipeit.Helpers.RecipeHelper;
 import com.mobiledev.recipeit.Models.ChatHistory;
 import com.mobiledev.recipeit.Models.RecipeByChatRequest;
 import com.mobiledev.recipeit.Models.RecipeByImageRequest;
@@ -45,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView chatHistoryView;
     private EditText inputEditText;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+
+    private ToggleButton veganToggle, glutenFreeToggle, dairyFreeToggle;
+    private SeekBar calorieSeekBar, recipeCountSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +86,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        //Food Preferences Options
+        veganToggle = findViewById(R.id.veganToggle);
+        glutenFreeToggle = findViewById(R.id.glutenFreeToggle);
+        dairyFreeToggle = findViewById(R.id.dairyFreeToggle);
+
+        calorieSeekBar = findViewById(R.id.calorieSeekBar);
+        recipeCountSeekBar = findViewById(R.id.recipeCountSeekBar);
+
     }
 
     public void onSelectPhoto(View v){
@@ -99,7 +114,17 @@ public class MainActivity extends AppCompatActivity {
         chatHistories.add(ChatHistory.User(content));
         chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
 
-        var req = new RecipeByChatRequest(content);
+        // Collect selected types
+        List<String> types = new ArrayList<>();
+        if (veganToggle.isChecked()) types.add("vegan");
+        if (glutenFreeToggle.isChecked()) types.add("gluten free");
+        if (dairyFreeToggle.isChecked()) types.add("dairy free");
+
+        double maxCalories = calorieSeekBar.getProgress();
+        int numberOfRecipes = recipeCountSeekBar.getProgress();
+        String recipeRequest = RecipeHelper.getRecipeByChat(types, maxCalories, numberOfRecipes, content);
+
+        var req = new RecipeByChatRequest(recipeRequest);
         performRequest(req);
     }
 

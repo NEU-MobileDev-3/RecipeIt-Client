@@ -90,6 +90,7 @@
             android:layout_marginBottom="8dp">
 
             <ToggleButton
+                android:id="@+id/veganToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textOn="🥬 Vegan"
@@ -101,6 +102,7 @@
                 android:paddingHorizontal="16dp"/>
 
             <ToggleButton
+                android:id="@+id/glutenFreeToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="48dp"
@@ -113,6 +115,7 @@
                 android:layout_marginStart="8dp"/>
 
             <ToggleButton
+                android:id="@+id/dairyFreeToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="48dp"
