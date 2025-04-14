@@ -302,4 +302,16 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void onAboutClick(View view) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("About RecipeIt")
+                .setMessage("📸 Snap, 🍳 Cook, 😋 Enjoy – Smart Recipes in Seconds!\n\n" +
+                        "RecipeIt helps you turn ingredients into creative meals using AI.\n\n" +
+                        "➤ Take or upload a photo of your ingredients.\n" +
+                        "➤ Get recipe ideas instantly using GenAI.\n" +
+                        "➤ Chat with your assistant for more meal suggestions.")
+                .setPositiveButton("OK", null)
+                .show();
+    }
 }
