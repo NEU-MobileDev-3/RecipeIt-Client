@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,10 +26,19 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private final Markwon markwon;
     private final List<ChatHistory> chatHistories;
+    private OnFavoriteClickListener favoriteClickListener;
+
+    public interface OnFavoriteClickListener {
+        void onFavoriteClick(int position, boolean isFavorite);
+    }
 
     public ChatHistoryAdapter(Context context, List<ChatHistory> chatHistories) {
         this.chatHistories = chatHistories;
         this.markwon = Markwon.create(context);
+    }
+
+    public void setOnFavoriteClickListener(OnFavoriteClickListener listener) {
+        this.favoriteClickListener = listener;
     }
 
     @Override
@@ -54,9 +64,9 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatHistory chat = chatHistories.get(position);
         if (holder instanceof ServerMessageViewHolder) {
-            ((ServerMessageViewHolder) holder).bind(chat);
+            ((ServerMessageViewHolder) holder).bind(chat, position);
         } else {
-            ((UserMessageViewHolder) holder).bind(chat);
+            ((UserMessageViewHolder) holder).bind(chat, position);
         }
     }
 
@@ -65,8 +75,9 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return chatHistories.size();
     }
 
-    static class ServerMessageViewHolder extends RecyclerView.ViewHolder {
+    class ServerMessageViewHolder extends RecyclerView.ViewHolder {
         TextView textMessage, textTimestamp;
+        ImageView favoriteIcon;
         Markwon markwon;
 
         ServerMessageViewHolder(Markwon markwon, View itemView) {
@@ -74,27 +85,69 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.markwon = markwon;
             textMessage = itemView.findViewById(R.id.textMessage);
             textTimestamp = itemView.findViewById(R.id.textTimestamp);
+            favoriteIcon = itemView.findViewById(R.id.favoriteIcon);
         }
 
-        void bind(ChatHistory chat) {
-            // textMessage.setText(chat.getMessage());
+        void bind(ChatHistory chat, int position) {
             markwon.setMarkdown(textMessage, chat.getMessage());
             textTimestamp.setText(chat.getCreatedAt().format(formatter));
+            
+            // Set the favorite icon state
+            updateFavoriteIcon(favoriteIcon, chat.isFavorite());
+            
+            // Set click listener for the favorite icon
+            favoriteIcon.setOnClickListener(v -> {
+                boolean newFavoriteState = !chat.isFavorite();
+                chat.setFavorite(newFavoriteState);
+                updateFavoriteIcon(favoriteIcon, newFavoriteState);
+                
+                if (favoriteClickListener != null) {
+                    favoriteClickListener.onFavoriteClick(position, newFavoriteState);
+                }
+            });
+        }
+        
+        private void updateFavoriteIcon(ImageView imageView, boolean isFavorite) {
+            imageView.setImageResource(isFavorite ? 
+                    R.drawable.ic_star_filled : 
+                    R.drawable.ic_star_outline);
         }
     }
 
-    static class UserMessageViewHolder extends RecyclerView.ViewHolder {
+    class UserMessageViewHolder extends RecyclerView.ViewHolder {
         TextView textMessage, textTimestamp;
+        ImageView favoriteIcon;
 
         UserMessageViewHolder(View itemView) {
             super(itemView);
             textMessage = itemView.findViewById(R.id.textMessage);
             textTimestamp = itemView.findViewById(R.id.textTimestamp);
+            favoriteIcon = itemView.findViewById(R.id.favoriteIcon);
         }
 
-        void bind(ChatHistory chat) {
+        void bind(ChatHistory chat, int position) {
             textMessage.setText(chat.getMessage());
             textTimestamp.setText(chat.getCreatedAt().format(formatter));
+            
+            // Set the favorite icon state
+            updateFavoriteIcon(favoriteIcon, chat.isFavorite());
+            
+            // Set click listener for the favorite icon
+            favoriteIcon.setOnClickListener(v -> {
+                boolean newFavoriteState = !chat.isFavorite();
+                chat.setFavorite(newFavoriteState);
+                updateFavoriteIcon(favoriteIcon, newFavoriteState);
+                
+                if (favoriteClickListener != null) {
+                    favoriteClickListener.onFavoriteClick(position, newFavoriteState);
+                }
+            });
+        }
+        
+        private void updateFavoriteIcon(ImageView imageView, boolean isFavorite) {
+            imageView.setImageResource(isFavorite ? 
+                    R.drawable.ic_star_filled : 
+                    R.drawable.ic_star_outline);
         }
     }
 }
