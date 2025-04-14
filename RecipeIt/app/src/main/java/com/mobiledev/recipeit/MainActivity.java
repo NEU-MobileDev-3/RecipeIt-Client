@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,15 +30,13 @@ import android.widget.ToggleButton;
 import androidx.activity.EdgeToEdge;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
+import com.mobiledev.recipeit.Helpers.ChatHistoryManager;
 import com.mobiledev.recipeit.Helpers.DialogHelper;
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
 import com.mobiledev.recipeit.Helpers.RecipeHelper;
-import com.mobiledev.recipeit.Helpers.UserSessionManager;
 import com.mobiledev.recipeit.Models.ChatHistory;
 import com.mobiledev.recipeit.Models.RecipeByChatRequest;
 import com.mobiledev.recipeit.Models.RecipeByImageRequest;
@@ -50,15 +50,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private static final String API_ENDPOINT = "http://10.0.2.2:4000/api";
 
     private ActivityMainBinding binding;
-    private UserSessionManager sessionManager;
-    private final List<ChatHistory> chatHistories = new ArrayList<>(
-            List.of(
-                    ChatHistory.Server("Hello! I am your recipe assistant. How can I help you today?"),
-                    ChatHistory.Server("Please upload an image of the ingredients or type your request.")
-            )
+    private FirebaseAuth auth;
+    private ChatHistoryManager historyManager;
+    private final List<ChatHistory> chatHistories = new ArrayList<>();
+    private final List<ChatHistory> welcomeMessages = List.of(
+            ChatHistory.Server("Hello! I am your recipe assistant. How can I help you today?"),
+            ChatHistory.Server("Please upload an image of the ingredients or type your request.")
     );
 
     private ChatHistoryAdapter chatHistoryAdapter;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ToggleButton veganToggle, glutenFreeToggle, dairyFreeToggle;
     private SeekBar calorieSeekBar, recipeCountSeekBar;
+    private Fragment currentFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,9 +87,9 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize UserSessionManager
-        var auth = FirebaseAuth.getInstance();
-        var currentUser = auth.getCurrentUser();
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
 
         // Check if user is logged in
         if (currentUser == null) {
@@ -97,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        // Initialize history manager
+        historyManager = new ChatHistoryManager(this, currentUser);
 
         // Set welcome message with user's name
         ActionBar actionBar = getSupportActionBar();
@@ -109,10 +114,19 @@ public class MainActivity extends AppCompatActivity {
         inputEditText = binding.inputEditText;
         sendIcon = binding.sendIcon;
 
+        // Load chat history
+        loadHistory();
+
         // Initialize chat adapter and recycler view
         chatHistoryAdapter = new ChatHistoryAdapter(this, chatHistories);
         chatHistoryView.setAdapter(chatHistoryAdapter);
         chatHistoryView.setLayoutManager(new LinearLayoutManager(this));
+        
+        // Setup favorite click handler
+        chatHistoryAdapter.setOnFavoriteClickListener((position, isFavorite) -> {
+            // Update favorite status in manager
+            historyManager.updateItemFavoriteStatus(position, chatHistories, isFavorite);
+        });
 
         // Setup click listeners
         sendIcon.setOnClickListener(v -> submitByChat(v));
@@ -148,10 +162,12 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
-                Toast.makeText(this, "Home selected", Toast.LENGTH_SHORT).show();
+                // Show main chat screen
+                showHomeScreen();
                 return true;
             } else if (id == R.id.nav_favorites) {
-                Toast.makeText(this, "Favorites selected", Toast.LENGTH_SHORT).show();
+                // Show favorites screen
+                showFavoritesScreen();
                 return true;
             } else if (id == R.id.nav_profile) {
                 Intent intent = new Intent(this, ProfileActivity.class);
@@ -160,6 +176,33 @@ public class MainActivity extends AppCompatActivity {
 
             return false;
         });
+    }
+
+    private void showHomeScreen() {
+        // Remove any active fragments and show main chat UI
+        if (currentFragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentFragment)
+                    .commit();
+            currentFragment = null;
+        }
+
+        // Show main chat UI
+        binding.mainChatLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showFavoritesScreen() {
+        // Hide main chat UI
+        binding.mainChatLayout.setVisibility(View.GONE);
+
+        // Show favorites fragment
+        FavoritesFragment favoritesFragment = new FavoritesFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, favoritesFragment)
+                .commit();
+        currentFragment = favoritesFragment;
     }
 
     public void submitByChat(View v) {
@@ -231,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     chatHistories.add(ChatHistory.Server("Sorry, I couldn't process your image: " + e.getMessage()));
                     chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
                     scrollToBottom();
+                    saveHistory();
                 });
             }
         }).start();
@@ -261,23 +305,52 @@ public class MainActivity extends AppCompatActivity {
                     chatHistories.add(ChatHistory.Server("Sorry, I couldn't process your request: " + e.getMessage()));
                     chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
                     scrollToBottom();
+                    saveHistory();
                 });
             }
         }).start();
     }
 
     private void saveHistory() {
-        // Save chat history to a database or file
-        // This is a placeholder for the actual implementation
-        var trimmedHistories = chatHistories.stream().skip(2);
-        var json = new Gson().toJson(trimmedHistories);
-        // TODO: Implement actual saving logic
+        try {
+            // Skip welcome messages when saving
+            historyManager.saveHistory(chatHistories);
+            
+            // Save favorite messages separately
+            List<ChatHistory> favorites = chatHistories.stream()
+                    .filter(ChatHistory::isFavorite)
+                    .toList();
+            historyManager.saveFavorites(new ArrayList<>(favorites));
+            
+            Log.d(TAG, "Chat history saved successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving chat history", e);
+        }
     }
 
     private void loadHistory() {
-        // Load chat history from a database or file
-        // This is a placeholder for the actual implementation
-        // TODO: Implement actual loading logic
+        try {
+            // Clear current list
+            chatHistories.clear();
+            
+            // Load history from storage
+            List<ChatHistory> savedHistory = historyManager.loadHistory();
+            
+            // If we have saved history, use it
+            if (!savedHistory.isEmpty()) {
+                chatHistories.addAll(savedHistory);
+            } else {
+                // Otherwise add welcome messages
+                chatHistories.addAll(welcomeMessages);
+            }
+            
+            Log.d(TAG, "Loaded " + chatHistories.size() + " chat history items");
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading chat history", e);
+            // Fallback to welcome messages
+            chatHistories.clear();
+            chatHistories.addAll(welcomeMessages);
+        }
     }
 
     @Override
@@ -294,7 +367,25 @@ public class MainActivity extends AppCompatActivity {
                     .setTitle("Logout")
                     .setMessage("Are you sure you want to logout?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        sessionManager.logoutUser();
+                        auth.signOut();
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+            return true;
+        } else if (item.getItemId() == R.id.action_clear_history) {
+            // Show confirmation dialog for clearing chat history
+            new AlertDialog.Builder(this)
+                    .setTitle("Clear History")
+                    .setMessage("Are you sure you want to clear all chat history?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        chatHistories.clear();
+                        chatHistories.addAll(welcomeMessages);
+                        chatHistoryAdapter.notifyDataSetChanged();
+                        historyManager.clearAllHistory();
+                        Toast.makeText(this, "Chat history cleared", Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton("No", null)
                     .show();

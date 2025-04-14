@@ -3,14 +3,21 @@ package com.mobiledev.recipeit.Models;
 import java.time.LocalDateTime;
 
 public class ChatHistory {
-    private final LocalDateTime createdAt;
-    private final String message;
-    private final boolean isServerMessage;
+    private LocalDateTime createdAt;
+    private String message;
+    private boolean isServerMessage;
+    private boolean isFavorite;
+
+    // No-args constructor for Gson serialization
+    public ChatHistory() {
+        // Required for Gson
+    }
 
     public ChatHistory(LocalDateTime createdAt, String message, boolean isServerMessage) {
         this.createdAt = createdAt;
         this.message = message;
         this.isServerMessage = isServerMessage;
+        this.isFavorite = false;
     }
 
     public static ChatHistory Server(String message) {
@@ -31,5 +38,13 @@ public class ChatHistory {
 
     public boolean isServerMessage() {
         return isServerMessage;
+    }
+    
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+    
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
 }
