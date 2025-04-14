@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveHistory() {
         // Save chat history to a database or file
         // This is a placeholder for the actual implementation
-        var trimmedHistories = chatHistories.stream().skip(2).toList();
+        var trimmedHistories = chatHistories.stream().skip(2);
         var json = new Gson().toJson(trimmedHistories);
         // TODO: Implement actual saving logic
     }
