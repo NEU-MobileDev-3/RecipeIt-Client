@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mobiledev.recipeit.Helpers.UserSessionManager;
 import com.mobiledev.recipeit.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
@@ -43,8 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         // Check if user is already signed in
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
+        if (auth.getCurrentUser() != null) {
             // User is already logged in, go to MainActivity
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();

@@ -86,10 +86,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Initialize UserSessionManager
-        sessionManager = new UserSessionManager(this);
+        var auth = FirebaseAuth.getInstance();
+        var currentUser = auth.getCurrentUser();
 
         // Check if user is logged in
-        if (!sessionManager.isLoggedIn()) {
+        if (currentUser == null) {
             // Redirect to login if not logged in
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -98,12 +99,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Set welcome message with user's name
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setTitle("Welcome, " + currentUser.getDisplayName());
-            }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("Welcome, " + currentUser.getDisplayName());
         }
 
         // Initialize UI elements using ViewBinding
