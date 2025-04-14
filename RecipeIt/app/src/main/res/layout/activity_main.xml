@@ -116,48 +116,55 @@
         <!-- Food Preferences -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_height="57dp"
+            android:layout_marginBottom="2dp"
             android:gravity="center"
-            android:layout_marginBottom="8dp">
+            android:orientation="horizontal">
 
             <ToggleButton
                 android:id="@+id/veganToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="🥬 Vegan"
-                android:textOff="🥬 Vegan"
-                android:minWidth="48dp"
-                android:minHeight="48dp"
                 android:background="@drawable/rounded_toggle"
+                android:minWidth="0dp"
+                android:minHeight="40dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
                 android:textColor="@android:color/black"
-                android:paddingHorizontal="16dp"/>
+                android:textOff="🥬 Vegan"
+                android:textOn="🥬 Vegan"
+                android:textSize="13sp" />
+
 
             <ToggleButton
                 android:id="@+id/glutenFreeToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="48dp"
-                android:minHeight="48dp"
-                android:textOn="🌾 Gluten Free"
-                android:textOff="🌾 Gluten Free"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/rounded_toggle"
+                android:minWidth="0dp"
+                android:minHeight="40dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
                 android:textColor="@android:color/black"
-                android:paddingHorizontal="16dp"
-                android:layout_marginStart="8dp"/>
+                android:textOff="🌾 Gluten Free"
+                android:textOn="🌾 Gluten Free"
+                android:textSize="13sp" />
 
             <ToggleButton
                 android:id="@+id/dairyFreeToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="48dp"
-                android:minHeight="48dp"
-                android:textOn="🥛 Dairy Free"
-                android:textOff="🥛 Dairy Free"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/rounded_toggle"
+                android:minWidth="0dp"
+                android:minHeight="40dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
                 android:textColor="@android:color/black"
-                android:paddingHorizontal="16dp"
-                android:layout_marginStart="8dp"/>
+                android:textOff="🥛 Dairy Free"
+                android:textOn="🥛 Dairy Free"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <!-- Sliders -->
@@ -166,13 +173,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp">
 
+            <!-- Calories Column -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
@@ -180,25 +188,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Calories 🔥"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
 
-                <FrameLayout
+                <SeekBar
+                    android:id="@+id/calorieSeekBar"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp">
-                    <SeekBar
-                        android:id="@+id/calorieSeekBar"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:max="1000"
-                        android:progress="300" />
-                </FrameLayout>
-
+                    android:layout_height="wrap_content"
+                    android:max="1000"
+                    android:progress="300" />
             </LinearLayout>
 
+            <!-- Recipes Column -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:paddingStart="8dp">
 
@@ -206,21 +212,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Recipes 🔢"
-                    android:textFontWeight="6"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
 
-                <FrameLayout
+                <SeekBar
+                    android:id="@+id/recipeCountSeekBar"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp">
-                    <SeekBar
-                        android:id="@+id/recipeCountSeekBar"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:max="5"
-                        android:progress="2" />
-                </FrameLayout>
+                    android:layout_height="wrap_content"
+                    android:max="5"
+                    android:progress="2" />
             </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -228,12 +232,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#FBC02D"
-        app:menu="@menu/bottom_nav_menu"
-        app:labelVisibilityMode="labeled"
         app:itemIconTint="@color/black"
         app:itemTextColor="@color/black"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:menu="@menu/bottom_nav_menu" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
