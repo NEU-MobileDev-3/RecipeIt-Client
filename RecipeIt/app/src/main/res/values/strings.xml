@@ -14,14 +14,13 @@
     <string name="select_photo">Select Photo</string>
     <string name="welcome">Welcome</string>
 
-    <!-- Missing strings referenced in activity_splash.xml -->
-    <string name="logo_description">App Logo</string>
-    <string name="name_of_app">RecipeIt</string>
-    <string name="app_slogan">Create recipes from your ingredients</string>
+    <!-- Splash screen and app description strings -->
+    <string name="logo_description">Phone held in front of the refrigerator capturing an image of ingredients</string>
     <string name="name_of_app">RecipeIt!</string>
-    <string name="logo_description">Phone held infront of the refrigerator capturing an image of ingredients\n</string>
     <string name="app_slogan">Snap, Cook, Enjoy!</string>
     <string name="recipeit">RecipeIt</string>
+
+    <!-- Navigation strings -->
     <string name="about">About</string>
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
