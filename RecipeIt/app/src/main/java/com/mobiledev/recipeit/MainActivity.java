@@ -154,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Favorites selected", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (id == R.id.nav_profile) {
-                Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show();
-                return true;
+                Intent intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
             }
 
             return false;
