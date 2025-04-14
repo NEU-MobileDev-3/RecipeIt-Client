@@ -154,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Favorites selected", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (id == R.id.nav_profile) {
-                Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show();
-                return true;
+                Intent intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
             }
 
             return false;
@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveHistory() {
         // Save chat history to a database or file
         // This is a placeholder for the actual implementation
-        var trimmedHistories = chatHistories.stream().skip(2).toList();
+        var trimmedHistories = chatHistories.stream().skip(2);
         var json = new Gson().toJson(trimmedHistories);
         // TODO: Implement actual saving logic
     }
