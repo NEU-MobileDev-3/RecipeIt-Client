@@ -62,7 +62,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private static final String API_ENDPOINT = "http://10.0.2.2:4000/api";
+    private static final String API_ENDPOINT = "https://recipeit-server.onrender.com/api";
 
     private ActivityMainBinding binding;
     private FirebaseAuth auth;
