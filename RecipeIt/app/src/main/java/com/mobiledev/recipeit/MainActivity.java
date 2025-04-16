@@ -39,6 +39,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
+import com.mobiledev.recipeit.Fragments.FavoritesFragment;
+import com.mobiledev.recipeit.Fragments.ProfileFragment;
 import com.mobiledev.recipeit.Helpers.ChatHistoryManager;
 import com.mobiledev.recipeit.Helpers.DialogHelper;
 import com.mobiledev.recipeit.Helpers.RecipeApiClient;
@@ -209,16 +211,14 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
-                // Show main chat screen
                 showHomeScreen();
                 return true;
             } else if (id == R.id.nav_favorites) {
-                // Show favorites screen
                 showFavoritesScreen();
                 return true;
             } else if (id == R.id.nav_profile) {
-                Intent intent = new Intent(this, ProfileActivity.class);
-                startActivity(intent);
+                showProfileScreen();
+                return true;
             }
 
             return false;
@@ -244,12 +244,25 @@ public class MainActivity extends AppCompatActivity {
         binding.mainChatLayout.setVisibility(View.GONE);
 
         // Show favorites fragment
-        FavoritesFragment favoritesFragment = new FavoritesFragment();
+        var favoritesFragment = new FavoritesFragment();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, favoritesFragment)
                 .commit();
         currentFragment = favoritesFragment;
+    }
+
+    private void showProfileScreen() {
+        // Hide main chat UI
+        binding.mainChatLayout.setVisibility(View.GONE);
+
+        // Show favorites fragment
+        var profileFragment = new ProfileFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, profileFragment)
+                .commit();
+        currentFragment = profileFragment;
     }
 
     public void submitByChat(View v) {

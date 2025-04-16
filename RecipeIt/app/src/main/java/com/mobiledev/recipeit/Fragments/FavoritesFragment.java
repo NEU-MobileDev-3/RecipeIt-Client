@@ -1,4 +1,4 @@
-package com.mobiledev.recipeit;
+package com.mobiledev.recipeit.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mobiledev.recipeit.Adapters.ChatHistoryAdapter;
 import com.mobiledev.recipeit.Helpers.ChatHistoryManager;
 import com.mobiledev.recipeit.Models.ChatHistory;
+import com.mobiledev.recipeit.R;
 
 import java.util.ArrayList;
 import java.util.List;
