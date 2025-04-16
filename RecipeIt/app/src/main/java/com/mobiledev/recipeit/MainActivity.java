@@ -5,6 +5,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -13,8 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -26,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.Manifest;
 
 import androidx.activity.EdgeToEdge;
 
@@ -43,11 +49,16 @@ import com.mobiledev.recipeit.Models.RecipeByImageRequest;
 import com.mobiledev.recipeit.databinding.ActivityMainBinding;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -67,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText inputEditText;
     private ImageView sendIcon;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+
+    private  ActivityResultLauncher<String> cameraPermissionLauncher;
 
     private ToggleButton veganToggle, glutenFreeToggle, dairyFreeToggle;
     private SeekBar calorieSeekBar, recipeCountSeekBar;
@@ -147,6 +161,39 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        //Register for Taking Photo (Camera Launcher)
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Bitmap photo = (Bitmap) result.getData().getExtras().get("data");
+                        Uri photoUri;
+                        try {
+                            photoUri = saveBitmapToUri(photo);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        try {
+                            handleImage(photoUri);
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+        );
+
+        //Checking if the permission is available, if it is then the camera opens, otherwise the message is shown.
+        cameraPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        openCamera(); // method that launches the camera intent
+                    } else {
+                        Toast.makeText(this, "Camera permission is required", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
 
         // Food Preferences Options
         veganToggle = findViewById(R.id.veganToggle);
@@ -239,9 +286,55 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void showImagePickerDialog(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Option");
+
+        String[] options = {"Take Picture", "Choose from Gallery"};
+        builder.setItems(options, (dialog, which) -> {
+            if (which == 0) {
+                takePhoto(); // Camera
+            } else if (which == 1) {
+                onSelectPhoto(view); // Gallery
+            }
+        });
+
+        builder.show();
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
+    public void takePhoto() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            openCamera();
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private Uri saveBitmapToUri(Bitmap bitmap) throws IOException {
+        File file = new File(getCacheDir(), "photo.jpg");
+        FileOutputStream out = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        out.flush();
+        out.close();
+
+        return FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+    }
+
     public void onSelectPhoto(View v) {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         imagePickerLauncher.launch(intent);
+    }
+
+    public void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraLauncher.launch(intent);
     }
 
     private void handleImage(Uri imageUri) throws FileNotFoundException {
