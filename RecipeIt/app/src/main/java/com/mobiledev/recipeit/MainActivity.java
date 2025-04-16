@@ -339,7 +339,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleImage(Uri imageUri) throws FileNotFoundException {
         // Add a loading message
-        chatHistories.add(ChatHistory.Server("Processing your image..."));
+        var loadingMessage = ChatHistory.Server("Processing your image...");
+        loadingMessage.setLoading(true);
+
+        chatHistories.add(loadingMessage);
         chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
         scrollToBottom();
 
@@ -382,6 +385,9 @@ public class MainActivity extends AppCompatActivity {
                 var generatedRecipes = res.getGenerated();
 
                 runOnUiThread(() -> {
+                    chatHistories.get(chatHistories.size() - 1).setLoading(false);
+                    chatHistoryAdapter.notifyItemChanged(chatHistories.size() - 1);
+
                     chatHistories.add(ChatHistory.Server(generatedRecipes));
                     chatHistoryAdapter.notifyItemInserted(chatHistories.size() - 1);
                     scrollToBottom();
@@ -393,6 +399,9 @@ public class MainActivity extends AppCompatActivity {
                     // Show error dialog
                     var errorMessage = "Error: " + e.getMessage();
                     DialogHelper.showErrorDialog(this, "Failed to request recipe", errorMessage);
+
+                    chatHistories.get(chatHistories.size() - 1).setLoading(false);
+                    chatHistoryAdapter.notifyItemChanged(chatHistories.size() - 1);
 
                     // Also add error to chat
                     chatHistories.add(ChatHistory.Server("Sorry, I couldn't process your request: " + e.getMessage()));
@@ -410,9 +419,14 @@ public class MainActivity extends AppCompatActivity {
             historyManager.saveHistory(chatHistories);
             
             // Save favorite messages separately
-            List<ChatHistory> favorites = chatHistories.stream()
-                    .filter(ChatHistory::isFavorite)
-                    .toList();
+            List<ChatHistory> favorites = new ArrayList<>();
+
+            for (ChatHistory chatHistory : chatHistories) {
+                if (chatHistory.isFavorite()) {
+                    favorites.add(chatHistory);
+                }
+            }
+
             historyManager.saveFavorites(new ArrayList<>(favorites));
             
             Log.d(TAG, "Chat history saved successfully");

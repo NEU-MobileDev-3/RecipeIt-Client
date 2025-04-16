@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -79,6 +80,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView textMessage, textTimestamp;
         ImageView favoriteIcon;
         Markwon markwon;
+        ProgressBar progressSending;
 
         ServerMessageViewHolder(Markwon markwon, View itemView) {
             super(itemView);
@@ -86,6 +88,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             textMessage = itemView.findViewById(R.id.textMessage);
             textTimestamp = itemView.findViewById(R.id.textTimestamp);
             favoriteIcon = itemView.findViewById(R.id.favoriteIcon);
+            progressSending = itemView.findViewById(R.id.progressSending);
         }
 
         void bind(ChatHistory chat, int position) {
@@ -105,6 +108,8 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     favoriteClickListener.onFavoriteClick(position, newFavoriteState);
                 }
             });
+
+            progressSending.setVisibility(chat.isLoading() ? View.VISIBLE : View.GONE);
         }
         
         private void updateFavoriteIcon(ImageView imageView, boolean isFavorite) {
@@ -117,12 +122,14 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     class UserMessageViewHolder extends RecyclerView.ViewHolder {
         TextView textMessage, textTimestamp;
         ImageView favoriteIcon;
+        ProgressBar progressSending;
 
         UserMessageViewHolder(View itemView) {
             super(itemView);
             textMessage = itemView.findViewById(R.id.textMessage);
             textTimestamp = itemView.findViewById(R.id.textTimestamp);
             favoriteIcon = itemView.findViewById(R.id.favoriteIcon);
+            progressSending = itemView.findViewById(R.id.progressSending);
         }
 
         void bind(ChatHistory chat, int position) {
@@ -142,6 +149,8 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     favoriteClickListener.onFavoriteClick(position, newFavoriteState);
                 }
             });
+
+            progressSending.setVisibility(chat.isLoading() ? View.VISIBLE : View.GONE);
         }
         
         private void updateFavoriteIcon(ImageView imageView, boolean isFavorite) {

@@ -72,4 +72,15 @@
         app:layout_constraintTop_toTopOf="@+id/cardView"
         app:srcCompat="@drawable/ic_star_outline" />
 
+    <ProgressBar
+        android:id="@+id/progressSending"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/favoriteIcon"
+        app:layout_constraintTop_toTopOf="@+id/favoriteIcon" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
