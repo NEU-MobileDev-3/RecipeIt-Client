@@ -22,7 +22,7 @@ RecipeIt-Client/
 
 To view detailed setup instructions, features, testing steps, and team contributions, please navigate to:
 
-[`RecipeIt/README.md`]
+[`RecipeIt/README.md`] (RecipeIt/README.md)
 
 This is the main root folder of the Android app. Open the `RecipeIt` folder in Android Studio to begin development or testing.
 
