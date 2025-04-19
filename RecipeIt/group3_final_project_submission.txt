@@ -1,0 +1,51 @@
+GitHub Repositories:
+Frontend (Android App): https://github.com/NEU-MobileDev-3/RecipeIt-Client
+    -> Go into the RecipeIt subfolder to sync gradle (that is the main Android App)
+Backend Server: https://github.com/NEU-MobileDev-3/RecipeIt-Server
+
+Team Members & Contributions:
+
+1. Chang Liu
+Email: liu.chang24@northeastern.edu
+GitHub: Chang-Liu-Harry
+Contribution:
+
+2. Fnu Aisha
+Email: aisha.f@northeastern.edu
+GitHub: aishaar
+Contribution:
+
+3. Linrui Luo
+Email: luo.linr@northeastern.edu
+GitHub: laolarou726
+Contribution:
+
+4. Senay Tilahun
+Email: tilahun.s@northeastern.edu
+GitHub: senay-tilahun
+Contribution:
+
+5. Yadhukrishnan Pankajakshan
+Email: pankajakshan.y@northeastern.edu
+GitHub: krishpy99
+Contribution:
+
+---
+
+Test Instructions:
+
+Please refer to the README.md for detailed test instructions
+
+Will have test login account to use the app.
+1. Launch the app to access the splash screen.
+    -> either create account or use test account to login
+2. Tap the camera icon on the home screen to capture or upload an image of ingredients.
+3. The app will identify the ingredients using AI image recognition.
+4. A recipe will be returned and displayed in the chat interface.
+
+Ensure the device has an active internet connection during testing.
+
+---
+
+App Version Indicator:
+The splash screen includes the text: "RecipeIt! v1.0.1" to confirm this is the submitted APK.
